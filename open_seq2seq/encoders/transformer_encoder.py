@@ -143,7 +143,8 @@ class TransformerEncoder(Encoder):
 
     # actual encoder part
     with tf.name_scope("encode"):
-      inputs = input_dict['source_tensors'][0]
+      inputs, src_lengths = input_dict['source_tensors']
+      #inputs = input_dict['source_tensors'][0]
       # Prepare inputs to the layer stack by adding positional encodings and
       # applying dropout.
       embedded_inputs = self.embedding_softmax_layer(inputs)
@@ -177,7 +178,8 @@ class TransformerEncoder(Encoder):
       return {'outputs': encoded,
               'inputs_attention_bias': inputs_attention_bias,
               'state': None,
-              'src_lengths': input_dict['source_tensors'][1],
+              'src_lengths': src_lengths,
+              #'src_lengths': input_dict['source_tensors'][1],
               'embedding_softmax_layer': self.embedding_softmax_layer,
               'encoder_input': inputs
               }

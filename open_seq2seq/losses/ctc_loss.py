@@ -67,15 +67,21 @@ class CTCLoss(Loss):
     Returns:
       averaged CTC loss.
     """
-    logits = input_dict['decoder_output']['logits']
     CSI="\x1B["
-    print(CSI+"32;40m" + "open_seq2seq/losses/ctc_loss.py 72" + CSI + "0m")
-    print('logits.shape')
-    print(logits.shape)
+    print(CSI+"32;40m" + "open_seq2seq/losses/ctc_loss.py 71" + CSI + "0m")
+    print('input_dict')
+    print(input_dict)
+    #logits = input_dict['decoder_output']['ctc_outputs']['logits']
+    logits = input_dict['decoder_output']['logits']
     tgt_sequence, tgt_length = input_dict['target_tensors']
     # this loss needs an access to src_length since they
     # might get changed in the encoder
+    #src_length = input_dict['decoder_output']['ctc_outputs']['src_length']
     src_length = input_dict['decoder_output']['src_length']
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/losses/ctc_loss.py 81" + CSI + "0m")
+    print('src_length')
+    print(src_length)
 
     # Compute the CTC loss
     total_loss = tf.nn.ctc_loss(

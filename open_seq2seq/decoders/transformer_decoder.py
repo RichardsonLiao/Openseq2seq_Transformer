@@ -154,9 +154,14 @@ class TransformerDecoder(Decoder):
       if targets is None:
         return self.predict(encoder_outputs, inputs_attention_bias)
       else:
-        logits = self.decode_pass(targets, encoder_outputs,
+        logits, outputs = self.decode_pass(targets, encoder_outputs,
                                   inputs_attention_bias)
+        CSI="\x1B["
+        print(CSI+"32;40m" + "open_seq2seq/decoders/transformer_decoder.py 160" + CSI + "0m")
+        print('outputs')
+        print(outputs)
         return {"logits": logits,
+                #"outputs": outputs,
                 "outputs": [tf.argmax(logits, axis=-1)],
                 "final_state": None,
                 "final_sequence_lengths": None}
@@ -236,7 +241,7 @@ class TransformerDecoder(Decoder):
     )
 
     logits = self.embedding_softmax_layer.linear(outputs)
-    return logits
+    return logits, outputs
 
   def _get_symbols_to_logits_fn(self, max_decode_length):
     """Returns a decoding function that calculates logits of the next tokens."""
