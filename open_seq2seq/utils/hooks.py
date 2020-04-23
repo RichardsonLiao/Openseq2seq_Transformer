@@ -89,11 +89,6 @@ class PrintSamplesHook(tf.train.SessionRunHook):
     self._timer.update_last_triggered_step(self._iter_count - 1)
 
     input_values, output_values = results
-    '''
-    CSI="\x1B["
-    print(CSI+"32;40m" + "open_seq2seq/utils/hooks.py 93" + CSI + "0m")
-    print('output_values')
-    print(output_values)
     dict_to_log = self._model.maybe_print_logs(input_values, output_values, step)
     # optionally logging to tensorboard any values
     # returned from maybe_print_logs
@@ -103,7 +98,6 @@ class PrintSamplesHook(tf.train.SessionRunHook):
           self._model.params['logdir'],
           step,
       )
-    '''
 
 
 class PrintLossAndTimeHook(tf.train.SessionRunHook):

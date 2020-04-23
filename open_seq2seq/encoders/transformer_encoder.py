@@ -112,15 +112,15 @@ class TransformerEncoder(Encoder):
           train=training,
           regularizer=self.regularizer,
           batch_size=self.batch_size,
-          num_features=self.num_features
+          num_feature=self.num_features
         )
         feed_forward_network = ffn_layer.FeedFowardNetwork(
           hidden_size=self.params["hidden_size"],
           filter_size=self.params["filter_size"],
           relu_dropout=self.params["relu_dropout"],
           train=training,
-          num_features=self.num_features,
-          batch_size=self.batch_size,
+          #num_features=self.num_features,
+          #batch_size=self.batch_size,
           regularizer=self.regularizer
         )
 
@@ -143,7 +143,8 @@ class TransformerEncoder(Encoder):
 
     # actual encoder part
     with tf.name_scope("encode"):
-      inputs = input_dict['source_tensors'][0]
+      inputs, src_lengths = input_dict['source_tensors']
+      #inputs = input_dict['source_tensors'][0]
       # Prepare inputs to the layer stack by adding positional encodings and
       # applying dropout.
       embedded_inputs = self.embedding_softmax_layer(inputs)
@@ -153,6 +154,7 @@ class TransformerEncoder(Encoder):
       else:
         inputs_padding = None
       inputs_attention_bias = utils.get_padding_bias(inputs)
+      inputs_attention_bias = tf.transpose(inputs_attention_bias, [0, 1, 3, 2, 4])
       # inputs_attention_bias = utils.get_padding_bias(inputs, dtype=self._params["dtype"])
 
       with tf.name_scope("add_pos_encoding"):
@@ -177,7 +179,8 @@ class TransformerEncoder(Encoder):
       return {'outputs': encoded,
               'inputs_attention_bias': inputs_attention_bias,
               'state': None,
-              'src_lengths': input_dict['source_tensors'][1],
+              'src_lengths': src_lengths,
+              #'src_lengths': input_dict['source_tensors'][1],
               'embedding_softmax_layer': self.embedding_softmax_layer,
               'encoder_input': inputs
               }

@@ -20,10 +20,10 @@ https://arxiv.org/abs/1706.03762
 """
 
 base_model = Speech2Text
-d_model = 128
-num_layers = 3
-batch_size = 1
-vocab_size = 29
+d_model = 16
+num_layers = 1
+batch_size = 2
+vocab_size = 28
 
 norm_params = {
   "type": "layernorm_L2",
@@ -43,10 +43,10 @@ base_params = {
   "num_gpus": 1, #8, # when using Horovod we set number of workers with params to mpirun
   "batch_size_per_gpu": batch_size,  # this size is in sentence pairs, reduce it if you get OOM
   "max_steps":  10000,
-  "save_summaries_steps": 1,
+  "save_summaries_steps": 100,
   "print_loss_steps": 1,
   "print_samples_steps": 10,
-  "eval_steps": 100,
+  "eval_steps": 10,
   "save_checkpoint_steps": 100,
   "logdir": "transformer-test",
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
@@ -64,7 +64,8 @@ base_params = {
   "lr_policy": poly_decay,
   "lr_policy_params": {
     "learning_rate": 1e-3,
-    "power": 2,
+    "power": 2.0,
+    "min_lr": 1e-5,
   },
 
   "encoder": TransformerEncoder,
@@ -123,21 +124,24 @@ base_params = {
 
   },
 
-  "loss": MultiTaskCTCEntropyLoss,
+  "loss": CTCLoss,
   "loss_params": {
-    "seq_loss_params": {
-      "offset_target_by_one": False,
-      "average_across_timestep": True,
-      "do_mask": False
-    },
-
-    "ctc_loss_params": {
-    },
-
-    "lambda_value": 0.25,
-    "tgt_vocab_size": vocab_size,
-    "batch_size": batch_size,
   },
+  #"loss": MultiTaskCTCEntropyLoss,
+  #"loss_params": {
+  #  "seq_loss_params": {
+  #    "offset_target_by_one": False,
+  #    "average_across_timestep": True,
+  #    "do_mask": False
+  #  },
+
+  #  "ctc_loss_params": {
+  #  },
+
+  #  "lambda_value": 0.25,
+  #  "tgt_vocab_size": vocab_size,
+  #  "batch_size": batch_size,
+  #},
 
   "data_layer": Speech2TextDataLayer,
   "data_layer_params": {

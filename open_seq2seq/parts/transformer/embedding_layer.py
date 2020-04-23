@@ -35,7 +35,7 @@ class EmbeddingSharedWeights(tf.layers.Layer):
     self.mask_paddings = mask_paddings
     self.regularizer = regularizer
 
-    padf = lambda x: x if x % 16 == 0 else x + 16 - x % 16
+    padf = lambda x: x if x % 8 == 0 else x + 8 - x % 8
     if pad_vocab_to_eight:
       self.vocab_size = padf(vocab_size)
     else:

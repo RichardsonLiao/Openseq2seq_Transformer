@@ -95,10 +95,28 @@ class JointCTCTransformerDecoder(Decoder):
       * ctc_outputs - output dictionary from the CTC decoder
     """
 
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/decoder/transformer_ctc_decoder.py 99" + CSI + "0m")
+    print('input_dict')
+    print(input_dict)
+
     seq_outputs = self.attn_decoder.decode(input_dict=input_dict)
+
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/decoder/transformer_ctc_decoder.py 106" + CSI + "0m")
+    print('seq_outputs')
+    print(seq_outputs)
+
+    #ctc_input_dict['decoder_output'] = seq_outputs['outputs']
     ctc_input_dict = input_dict
-    ctc_input_dict['decoder_output'] = seq_outputs['outputs']
-    ctc_outputs = self.ctc_decoder.decode(input_dict=ctc_input_dict)
+    ctc_input_dict['decoder_output'] = seq_outputs
+    ctc_outputs = self.ctc_decoder.decode(input_dict=input_dict)
+    #ctc_outputs = self.ctc_decoder.decode(input_dict=ctc_input_dict)
+
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/decoder/transformer_ctc_decoder.py 112" + CSI + "0m")
+    print('ctc_outputs')
+    print(ctc_outputs)
 
     return {
         'outputs1': ctc_outputs['outputs'],

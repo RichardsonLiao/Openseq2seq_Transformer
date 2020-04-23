@@ -151,6 +151,10 @@ class Speech2Text(EncoderDecoderModel):
       ``decoder.decode()['outputs']``. When ``mode == 'infer'``, loss will
       be None.
     """
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/models/speech2text.py 155" + CSI + "0m")
+    print('input_tensors')
+    print(input_tensors)
     if not isinstance(input_tensors, dict) or \
        'source_tensors' not in input_tensors:
       raise ValueError('Input tensors should be a dict containing '
@@ -176,7 +180,7 @@ class Speech2Text(EncoderDecoderModel):
       if self.mode == "train" or self.mode == "eval":
         decoder_input['target_tensors'] = target_tensors
       decoder_output = self.decoder.decode(input_dict=decoder_input)
-      model_outputs = decoder_output.get("outputs1", None)
+      model_outputs = decoder_output.get("outputs", None)
 
       if self.mode == "train" or self.mode == "eval":
         with tf.variable_scope("Loss"):

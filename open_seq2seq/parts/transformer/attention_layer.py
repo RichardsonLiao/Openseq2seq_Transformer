@@ -31,7 +31,7 @@ class Attention(tf.layers.Layer):
           attention_dropout,
           train,
           batch_size,
-          num_features,
+          num_feature,
           mode="loung",
           regularizer=None,
           window_size=None,
@@ -48,7 +48,7 @@ class Attention(tf.layers.Layer):
     self.train = train
     self.mode = mode
     self.batch_size = batch_size
-    self.num_features = num_features
+    self.num_feature = num_feature
 
     # Parameters for monotonic attention forcing during inference
     self.window_size = window_size
@@ -67,56 +67,53 @@ class Attention(tf.layers.Layer):
 
   def split_heads(self, x):
     """Split x into different heads, and transpose the resulting value.
-
     The tensor is transposed to insure the inner dimensions hold the correct
     values during the matrix multiplication.
-
     Args:
-      x: A tensor with shape [batch_size, length, hidden_size]
-
+      x: A tensor with shape [batch_size, length, num_feature, hidden_size]
     Returns:
-      A tensor with shape [batch_size, num_heads, length, hidden_size/num_heads]
+      A tensor with shape [batch_size, num_heads, length, hidden_size/num_heads, num_feature]
     """
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/parts/transformer/attention_layer.py line 74" + CSI + "0m")
+    print('x')
+    print(x)
     with tf.name_scope("split_heads"):
-      batch_size = tf.shape(x)[0]
+      #batch_size = tf.shape(x)[0]
+      batch_size = self.batch_size
       length = tf.shape(x)[1]
+      num_feature = self.num_feature
 
       # Calculate depth of last dimension after it has been split.
       depth = (self.hidden_size // self.num_heads)
 
       # Split the last dimension
-      if 'encoder' in x.name:
-        x = tf.reshape(x, [self.batch_size, length, self.num_heads, depth, self.num_features])
-        # Transpose the result
-        return tf.transpose(x, [0, 2, 1, 3, 4])
-      #if 'decoder' in x.name:
-      else:
-        x = tf.reshape(x, [self.batch_size, -1, self.num_heads, depth])
-        # Transpose the result
-        return tf.transpose(x, [0, 2, 1, 3])
+      x = tf.reshape(x, [batch_size, length, self.num_heads, depth, num_feature])
+
+      # Transpose the result
+      return tf.transpose(x, [0, 2, 1, 3, 4])
 
   def combine_heads(self, x):
     """Combine tensor that has been split.
-
     Args:
-      x: A tensor [batch_size, num_heads, length, hidden_size/num_heads]
-
+      x: A tensor [batch_size, num_heads, length, hidden_size/num_heads, num_feature]
     Returns:
-      A tensor with shape [batch_size, length, hidden_size]
+      A tensor with shape [batch_size, length, hidden_size, num_feature]
     """
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/parts/transformer/attention_layer.py line 99" + CSI + "0m")
+    print('x')
+    print(x)
     with tf.name_scope("combine_heads"):
-      batch_size = tf.shape(x)[0]
+      #batch_size = tf.shape(x)[0]
+      batch_size = self.batch_size
       length = tf.shape(x)[2]
-      if 'decoder' in x.name:
-        x = tf.transpose(x, [0, 2, 1, 3])  # --> [batch, length, num_heads, depth]
-        return tf.reshape(x, [batch_size, length, self.hidden_size])
-      if 'encoder' in x.name:
-        x = tf.transpose(x, [0, 2, 1, 3, 4])  # --> [batch, length, num_heads, depth, num_features]
-        return tf.reshape(x, [batch_size, length, self.hidden_size, self.num_features])
+      num_feature = self.num_feature
+      x = tf.transpose(x, [0, 2, 4, 1, 3])  # --> [batch, length, num_heads, depth, num_feature]
+      return tf.reshape(x, [batch_size, length, num_feature, self.hidden_size])
 
   def call(self, x, y, bias, cache=None, positions=None):
     """Apply attention mechanism to x and y.
-
     Args:
       x: a tensor with shape [batch_size, length_x, hidden_size]
       y: a tensor with shape [batch_size, length_y, hidden_size]
@@ -127,7 +124,6 @@ class Attention(tf.layers.Layer):
              "v": tensor with shape [batch_size, i, value_channels]}
         where i is the current decoded length.
       positions: decoder-encoder alignment for previous steps [batch_size, n_heads, length_x]
-
     Returns:
       Attention layer output with shape [batch_size, length_x, hidden_size]
     """
@@ -156,21 +152,44 @@ class Attention(tf.layers.Layer):
     if self.mode == "loung":
       # Scale q to prevent the dot product between q and k from growing too large.
       depth = (self.hidden_size // self.num_heads)
-      q *= depth ** -0.5
+      q *= 256 ** -0.5
 
       # Calculate dot product attention
       # logits = tf.matmul(q, k, transpose_b=True)
       # logits += bias
       # weights = tf.nn.softmax(logits, name="attention_weights")
-      logits = tf.matmul(q, k, transpose_b=True)
+      CSI="\x1B["
+      print(CSI+"32;40m" + "open_seq2seq/parts/transformer/attention_layer.py line 182" + CSI + "0m")
+      print('q')
+      print(q)
+      CSI="\x1B["
+      print(CSI+"32;40m" + "open_seq2seq/parts/transformer/attention_layer.py line 186" + CSI + "0m")
+      print('k')
+      print(k)
+      #logits = tf.matmul(q, k)
+      #logits = tf.matmul(q, k, transpose_b=True)
+      logits = tf.multiply(q, k)
+      CSI="\x1B["
+      print(CSI+"32;40m" + "open_seq2seq/parts/transformer/attention_layer.py line 193" + CSI + "0m")
+      print('logits')
+      print(logits)
       dtype = logits.dtype
       if dtype != tf.float32:
+        CSI="\x1B["
+        print(CSI+"32;40m" + "open_seq2seq/parts/transformer/attention_layer.py line 165" + CSI + "0m")
+        print('bias')
+        print(bias)
         # upcast softmax inputs
         logits = tf.cast(x=logits, dtype=tf.float32)
-        #logits += bias
+        logits += bias
+        logits = logits/16 # divided by sruare root of d(att)
         weights = tf.nn.softmax(logits, name="attention_weights")
         # downcast softmax output
         weights = tf.cast(weights, dtype=dtype)
+        CSI="\x1B["
+        print(CSI+"32;40m" + "open_seq2seq/parts/transformer/attention_layer.py line 171" + CSI + "0m")
+        print('weights')
+        print(weights)
       else:
         # Logits shape: [batch, head, decoder, encoder]
         # Bias shape:   [batch, 1, 1, encoder]
@@ -197,7 +216,7 @@ class Attention(tf.layers.Layer):
           # Clipping
           bias = tf.maximum(bias, -1e9)
 
-        #logits += bias
+        logits += bias
         weights = tf.nn.softmax(logits, name="attention_weights")
     elif self.mode == "bahdanau":
       att_v = tf.get_variable(
@@ -223,22 +242,36 @@ class Attention(tf.layers.Layer):
 
     if self.train:
       weights = tf.nn.dropout(weights, keep_prob=1 - self.attention_dropout)
-    attention_output = tf.matmul(weights, v)
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/parts/transformer/attention_layer.py line 227" + CSI + "0m")
+    print('weights')
+    print(weights)
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/parts/transformer/attention_layer.py line 211" + CSI + "0m")
+    print('v')
+    print(v)
+    #attention_output = tf.matmul(weights, v)
+    #attention_output = tf.matmul(weights, v, transpose_b=True)
+    attention_output = tf.multiply(weights, v)
 
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/parts/transformer/attention_layer.py line 253" + CSI + "0m")
+    print('attention_output')
+    print(attention_output)
     # Recombine heads --> [batch_size, length, hidden_size]
     attention_output = self.combine_heads(attention_output)
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/parts/transformer/attention_layer.py line 259" + CSI + "0m")
+    print('attention_output')
+    print(attention_output)
 
     # Run the combined outputs through another linear projection layer.
-    #attention_output = self.output_dense_layer(attention_output)
-    length = tf.shape(attention_output)[1]
-    batch_size = tf.shape(x)[0]
-    if 'decoder' in x.name:
-        #return tf.reshape(attention_output, [batch_size, -1, self.hidden_size])
-        return tf.reshape(attention_output, [self.batch_size, length, self.hidden_size])
-    #elif 'encoder' in x.name:
-    else:
-        #return tf.reshape(attention_output, [batch_size, -1, self.num_features, self.hidden_size])
-        return tf.reshape(attention_output, [self.batch_size, length, self.num_features, self.hidden_size])
+    attention_output = self.output_dense_layer(attention_output)
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/parts/transformer/attention_layer.py line 266" + CSI + "0m")
+    print('attention_output')
+    print(attention_output)
+    return attention_output
 
 
 class SelfAttention(Attention):

@@ -124,24 +124,28 @@ class FullyConnectedTimeDecoder(Decoder):
         }
     """
     CSI="\x1B["
-    print(CSI+"32;40m" + "open_seq2seq/decoders/fc_decoders.py 127" + CSI + "0m")
-    print('tgt_vocab_size')
-    print(self.params['tgt_vocab_size'])
+    print(CSI+"32;40m" + "open_seq2seq/decoders/fc_decoder.py 130" + CSI + "0m")
+    print('input_dict')
+    print(input_dict)
     inputs = input_dict['encoder_output']['outputs']
     regularizer = self.params.get('regularizer', None)
 
-    batch_size, _, num_feature_no_use, n_hidden = inputs.get_shape().as_list()
+    batch_size, _, num_feature, n_head = inputs.get_shape().as_list()
     # reshape from [B, T, A] --> [B*T, A].
     # Output shape: [n_steps * batch_size, n_hidden]
-    inputs = tf.reshape(inputs, [-1, n_hidden])
+    inputs = tf.reshape(inputs, [-1, n_head])
 
     # activation is linear by default
     logits = tf.layers.dense(
         inputs=inputs,
-        units=self.params['tgt_vocab_size']+1,
+        units=self.params['tgt_vocab_size'],
         kernel_regularizer=regularizer,
         name='fully_connected',
     )
+    CSI="\x1B["
+    print(CSI+"32;40m" + "open_seq2seq/decoders/fc_decoder.py 149" + CSI + "0m")
+    print('logits')
+    print(logits)
     '''
     logits = tf.reshape(
         logits,
@@ -155,7 +159,7 @@ class FullyConnectedTimeDecoder(Decoder):
           tf.convert_to_tensor([
               tf.cast(float('nan'), dtype=tf.int32), 
               tf.cast(-1, dtype=tf.int32), 
-              tf.cast(self.params['tgt_vocab_size']+1, dtype=tf.int32)], 
+              tf.cast(self.params['tgt_vocab_size'], dtype=tf.int32)], 
               dtype=tf.int32), name="logits",
       )
     else:
@@ -164,12 +168,13 @@ class FullyConnectedTimeDecoder(Decoder):
           tf.convert_to_tensor([
               tf.cast(batch_size, dtype=tf.int32), 
               tf.cast(-1, dtype=tf.int32), 
-              tf.cast(self.params['tgt_vocab_size']+1, dtype=tf.int32)], 
+              tf.cast(self.params['tgt_vocab_size'], dtype=tf.int32)], 
               dtype=tf.int32), name="logits",
       )
     # converting to time_major=True shape
     if not(self._mode=='infer' and self.params.get('infer_logits_to_pickle')):
       logits = tf.transpose(logits, [1, 0, 2])
+      #logits = tf.transpose(logits, [1, 0, 2])
     if 'logits_to_outputs_func' in self.params:
       outputs = self.params['logits_to_outputs_func'](logits, input_dict)
 
