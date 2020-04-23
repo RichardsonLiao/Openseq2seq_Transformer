@@ -20,7 +20,11 @@ https://arxiv.org/abs/1706.03762
 """
 
 base_model = Speech2Text
+<<<<<<< HEAD
 d_model = 32
+=======
+d_model = 16
+>>>>>>> 10add64c3685133069f5dc31c87e30198a9f21ff
 num_layers = 10
 batch_size = 10
 vocab_size = 28
@@ -56,14 +60,22 @@ base_params = {
   "num_epochs":  1000,
   "save_summaries_steps": 10,
   "print_loss_steps": 10,
+<<<<<<< HEAD
   "print_samples_steps": 100,
   "eval_steps": 100,
   "save_checkpoint_steps": 1000,
   "logdir": "log/bert-novograd-eta-5e4a-depth-16",
+=======
+  "print_samples_steps": 10,
+  "eval_steps": 10,
+  "save_checkpoint_steps": 100,
+  "logdir": "transformer-test",
+>>>>>>> 10add64c3685133069f5dc31c87e30198a9f21ff
   #"dtype": tf.float32, # to enable mixed precision, comment this line and uncomment two below lines
   "dtype": "mixed",
   "loss_scaling": "Backoff",
 
+<<<<<<< HEAD
   #"optimizer": "Adam",
   #"optimizer_params": {
   #  "beta1": 0.9,
@@ -74,6 +86,8 @@ base_params = {
   #"optimizer_params": {
   #  "momentum": 0.9
   #},
+=======
+>>>>>>> 10add64c3685133069f5dc31c87e30198a9f21ff
   "optimizer": NovoGrad,
   "optimizer_params": {
     "beta1": 0.95,
@@ -96,7 +110,11 @@ base_params = {
   },
 
   "larc_params": {
+<<<<<<< HEAD
     "larc_eta": 5e-4,
+=======
+    "larc_eta": 0.001,
+>>>>>>> 10add64c3685133069f5dc31c87e30198a9f21ff
   },
 
   "summaries": ['learning_rate', 'variables', 'gradients', 'larc_summaries',
@@ -109,13 +127,21 @@ base_params = {
     "src_vocab_size": vocab_size,
     "encoder_layers": num_layers,
     "hidden_size": d_model,
+<<<<<<< HEAD
     "num_heads": 2,
+=======
+    "num_heads": 16,
+>>>>>>> 10add64c3685133069f5dc31c87e30198a9f21ff
     "filter_size": 4 * d_model,
     "attention_dropout": attention_dropout,  # 0.1,
     "relu_dropout": dropout,                 # 0.3,
     "layer_postprocess_dropout": dropout,    # 0.3,
     "pad_embeddings_2_eight": False,
+<<<<<<< HEAD
     "remove_padding": False, # definitely not True, or FFN layer will goes wrong
+=======
+    "remove_padding": True,
+>>>>>>> 10add64c3685133069f5dc31c87e30198a9f21ff
     "norm_params": norm_params,
   },
 
@@ -167,7 +193,11 @@ train_params = {
   "data_layer_params": {
     "dataset_files": [
       "open_seq2seq/test_utils/toy_speech_data/toy_data.csv"
+<<<<<<< HEAD
       #"/workspace/data/en/output/cv2-test.csv",
+=======
+      #"open_seq2seq/test_utils/toy_speech_data/one-sentence.csv",
+>>>>>>> 10add64c3685133069f5dc31c87e30198a9f21ff
     ],
     "max_duration": 16.7,
     "shuffle": False,
@@ -179,7 +209,10 @@ eval_params = {
   "data_layer_params": {
     "dataset_files": [
       "open_seq2seq/test_utils/toy_speech_data/toy_data.csv"
+<<<<<<< HEAD
       #"/workspace/data/en/output/cv2-test.csv",
+=======
+>>>>>>> 10add64c3685133069f5dc31c87e30198a9f21ff
       #"open_seq2seq/test_utils/toy_speech_data/one-sentence.csv",
     ],
     "shuffle": False,
